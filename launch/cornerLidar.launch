@@ -1,0 +1,11 @@
+<launch>
+  <!-- request for each point the angles -->
+  <node
+    pkg="camera_lidar_calibration"
+    name="pcdCorner"
+    type="pcd_corner.py"
+    output="screen"
+    args="$(find camera_lidar_calibration)/../../data/pcdFiles $(find camera_lidar_calibration)/../../data/corner_lidar.txt"
+    required="true"
+  ></node>
+</launch>

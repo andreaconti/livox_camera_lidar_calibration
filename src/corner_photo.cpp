@@ -63,6 +63,19 @@ void getParameters() {
     }
 }
 
+
+void storePoint(int event, int x, int y, int flags, void *params) {
+    vector<cv::Point2f> *corners = static_cast<vector<cv::Point2f>*>(params);
+    if (event == cv::EVENT_LBUTTONDOWN) {
+        cout << "point: " << x << " " << y << endl;
+        cv::Point2f p;
+        p.x = x;
+        p.y = y;
+        corners->push_back(p);
+    }
+}
+
+
 int main(int argc, char **argv) {
     ros::init(argc, argv, "cornerPhoto");
     getParameters();
@@ -99,23 +112,14 @@ int main(int argc, char **argv) {
     cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(),cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0), imageSize, CV_16SC2, map1, map2);
     cv::remap(src_img, src_img, map1, map2, cv::INTER_LINEAR);  // correct the distortion
 
-    cout << "Please note the four corners, and then tap a random key to give the coordinate" << endl;
-    // cv::namedWindow("source", CV_WINDOW_KEEPRATIO);
+    vector<cv::Point2f> corners;
+    cout << "please click on the corners in a counterclockwise order" << endl;
     cv::namedWindow("source");
     cv::imshow("source", src_img);
+    cv::setMouseCallback("source", storePoint, &corners);
     cv::waitKey(0);
-    
     cv::destroyWindow("source");
-    vector<cv::Point2f> corners;
-    cout << "Give the corner coordinate, finish by 0 0" << endl;
-    while(1) {
-        cv::Point2f p;
-        cin >> p.x >> p.y;
-        if(p.x < 0.1 && p.y < 0.1) {  // finish by typing "0 0"
-            break;
-        }
-        corners.push_back(p);
-    }
+
     if (!corners.size()) {
         cout << "No input corners, end process" << endl;
         return 0;
@@ -124,7 +128,6 @@ int main(int argc, char **argv) {
 	cv::Size zerozone = cv::Size(-1, -1);
     cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 40, 0.001);
     
-    // cv::namedWindow("output", CV_WINDOW_KEEPRATIO);
     cv::namedWindow("output");
     cv::cvtColor(src_img, gray_img, cv::COLOR_BGR2GRAY);
     cv::cornerSubPix(gray_img, corners, winSize, zerozone, criteria);
