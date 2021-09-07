@@ -114,7 +114,8 @@ int main(int argc, char **argv) {
 
     vector<cv::Point2f> corners;
     cout << "please click on the corners in a counterclockwise order" << endl;
-    cv::namedWindow("source");
+    cv::namedWindow("source", cv::WINDOW_NORMAL);
+    cv::resizeWindow("source", 900, 900);
     cv::imshow("source", src_img);
     cv::setMouseCallback("source", storePoint, &corners);
     cv::waitKey(0);
@@ -128,7 +129,9 @@ int main(int argc, char **argv) {
 	cv::Size zerozone = cv::Size(-1, -1);
     cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 40, 0.001);
     
-    cv::namedWindow("output");
+    cv::namedWindow("output", cv::WINDOW_NORMAL);
+    cv::resizeWindow("output", 900, 900);
+
     cv::cvtColor(src_img, gray_img, cv::COLOR_BGR2GRAY);
     cv::cornerSubPix(gray_img, corners, winSize, zerozone, criteria);
 
@@ -140,8 +143,7 @@ int main(int argc, char **argv) {
     }
     
     cout << endl << "Result saved, tap a random key to finish the process" << endl;
-    cv::namedWindow("output");
-    imshow("output", result_img);
+    cv::imshow("output", result_img);
     cv::waitKey(0);
     return 0;
 }
